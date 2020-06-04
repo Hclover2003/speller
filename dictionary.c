@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include "dictionary.h"
 
 // Represents a node in a hash table
@@ -15,10 +16,12 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 5381; /* TBU!! */
+const unsigned int N = 48000; /* length of dictionary / 3  */
 
 // Hash table
 node *table[N];
+
+bool insert (node *w); /* declaration for supp function to insert word into hash table */
 
 // Loads dictionary into memory, returning true if successful else false
 /* moving one given as how this is Step (1) */
@@ -51,13 +54,25 @@ bool load(const char *dictionary)
         return true;
     }
     
-    /* load the dictionary into the hash table */
+    int index = 0;
+    while (dict_live != NULL){
+        node *w = malloc(sizeof(node));
+        strcpy(w->word, dict_live[index]); /* NEED TO FIX HOW DICTIONARY RUNS THRU; 
+        NEEDS TO BE READ AND HASHED WORD BY WORD (MIN 6:23 OF VIDEO) */
+        insert(&w);
+        index++;
+    }
+    return true;
 
-    bool insert (node *word)
+
+    bool insert (node *w)
     {
-        if (word == NULL) return false;
+        if (w == NULL) return false;
 
-        int index = hash(word) /* TBU after implementing hash() */
+        int index = hash(w->word) /* TBU after implementing hash() */
+        w->next = table[index];
+        table[index] = w; 
+        return true;
     }
 
     
@@ -67,9 +82,23 @@ bool load(const char *dictionary)
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
-    node *d = malloc(sizeof(node));
+    int wlen = strlen(word);    
+    unsigned long hash_value = 5381;
+    unsigned int x = *word;
+    x = tolower(x);
 
-    return 0;
+    while(*word != NULL)
+    {
+        hash_value = hash_value * 33 + x;
+        x = *word++;
+        x = tolower(x);
+    }
+    return hash_value % N;
+    
+
+
+
+    /* return 0; not sure how to have hash() return 0 yet */
 }
 
 
