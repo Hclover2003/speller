@@ -42,9 +42,13 @@ bool load(const char *dictionary)
     char *word = malloc(LENGTH * sizeof(char)); /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
     node *w = malloc(sizeof(node));
     
+    /* pointer to dictionary size tracker */
+    int *size = malloc(sizeof(int));
+
     /* scan dictionary into hash table one word at a time */
     while (fscanf(dict_ptr, "%s", word) != EOF)
     {
+        size();
         int index = 0;
         strcpy(w->word, word); 
         insert(&w);
@@ -109,10 +113,18 @@ bool check(const char *word)
 
 
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
+/* increments size pointer by one each time the dictionary fscanf loop does not return NULL */
 unsigned int size(void)
 {
-    // TODO
-    return 0;
+    *size++;
+    if (*size > 0)
+    {
+        return *size;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 // Unloads dictionary from memory, returning true if successful else false
