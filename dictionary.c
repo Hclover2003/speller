@@ -15,7 +15,7 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 1; /* TBU!! */
+const unsigned int N = 5381; /* TBU!! */
 
 // Hash table
 node *table[N];
@@ -31,7 +31,7 @@ bool load(const char *dictionary)
         unload();
         return false;
     }
-    
+
     /* //determine size of dictionary file */
     fseek(dict_ptr, 0, SEEK_END);
     int dict_size = ftell(dict_ptr);
@@ -41,12 +41,25 @@ bool load(const char *dictionary)
     node *dict_live = malloc(dict_size * sizeof(int));
     
     /* scan dictionary into allocated array */
-    if(fscanf(dict_ptr, "%s", dict_live) == NULL) //THIS IS WRONG. NEEDS TO BE DONE ONE WORD AT A TIME
-    /* fscanf will return EOF once it reaches end -- should be a loop */
+    if(fscanf(dict_ptr, "%s", dict_live) == NULL) 
     {
         printf("Couldn't copy dictionary into a dynamic array...");
-        return 
+        return false;
     }
+    else
+    {
+        return true;
+    }
+    
+    /* load the dictionary into the hash table */
+
+    bool insert (node *word)
+    {
+        if (word == NULL) return false;
+
+        int index = hash(word) /* TBU after implementing hash() */
+    }
+
     
 }
 
