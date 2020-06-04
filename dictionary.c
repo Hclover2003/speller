@@ -16,12 +16,13 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 48000; /* length of dictionary / 3  */
+const unsigned int N = 48000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
 
 // Hash table
 node *table[N];
 
 bool insert (node *w); /* declaration for supp function to insert word into hash table */
+unsigned int size(void); /* declaration for size counter when loading dictionary */
 
 // Loads dictionary into memory, returning true if successful else false
 /* moving one given as how this is Step (1) */
@@ -43,7 +44,7 @@ bool load(const char *dictionary)
     node *w = malloc(sizeof(node));
     
     /* pointer to dictionary size tracker */
-    int *size = malloc(sizeof(int));
+    int *size_trck = malloc(sizeof(int));
 
     /* scan dictionary into hash table one word at a time */
     while (fscanf(dict_ptr, "%s", word) != EOF)
@@ -58,13 +59,13 @@ bool load(const char *dictionary)
     }
     free(word);
     free(w);
-
+}
 
     bool insert (node *w)
     {
         if (w == NULL) return false;
 
-        int index = hash(w->word) /* TBU after implementing hash() */
+        int index = hash(w->word); /* TBU after implementing hash() */
         w->next = table[index];
         table[index] = w; 
         return true;
@@ -113,13 +114,17 @@ bool check(const char *word)
 
 
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
-/* increments size pointer by one each time the dictionary fscanf loop does not return NULL */
+/* increments size tracker by one if the dictionary word pointer (*w) is not null and therefore still iterating 
+otherwise returns the tracker val upon call */
 unsigned int size(void)
 {
-    *size++;
-    if (*size > 0)
+    if(*w != NULL)
     {
-        return *size;
+        *size_trck++;
+    }
+    else if (*size_trck > 0)
+    {
+        return *size_trck;
     }
     else
     {
@@ -133,21 +138,36 @@ bool unload(void)
     for (int i = 0; i < N; i++)
     {
         node *tmp = table[i];
-        node *tmpnxt = table[i];
+        node *tmpnxt = table[i + 1];
         
-        while(tmp != NULL)
+        if (tmp == NULL && tmpnxt == NULL)
         {
-            free(table[i]);
-            if (!table[i])
+            return false;
+        }
+        
+        else
+        {
+            while(tmp != NULL && tmpnxt != NULL)
             {
-                tmp = tmpnxt->next;
-                tmpnxt = tmp;
-                return true;
+                free(tmp);
+                tmp = tmpnxt;
+                tmpnxt = tmpnxt->next;
+            }
+            
+            if (tmp != NULL && tmpnxt == NULL)
+            {
+                free(tmp);
             }
             else
             {
+                printf("Something went wrong when freeing the memory -- end of list");
                 return false;
-            }           
+            }
         }
+    }
+    if (!*table)
+    {
+        printf("Successfully freed each node");
+        return true;
     }
 }
