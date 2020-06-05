@@ -1,0 +1,1 @@
+remember to free table -- actually, check speller to see if it gets freed there 

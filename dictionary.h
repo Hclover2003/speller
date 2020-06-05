@@ -11,6 +11,7 @@
 
 // Prototypes
 bool check(const char *word); /* *word == string */
+
 unsigned int hash(const char *word); /* *word == string */
 bool load(const char *dictionary);
 unsigned int size(void);

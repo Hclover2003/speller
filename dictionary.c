@@ -7,6 +7,13 @@
 #include <string.h>
 #include "dictionary.h"
 
+/* dictionary size tracker variable */
+int size_trck = 0;
+
+/* global dictionary load boolean */
+bool dic_load = false;
+
+
 // Represents a node in a hash table
 typedef struct node
 {
@@ -33,7 +40,7 @@ bool load(const char *dictionary)
     {
         printf("Could not open %s...\n", dict_ptr);
         unload();
-        return false;
+        return dic_load = false;
     }
 
 
@@ -43,20 +50,22 @@ bool load(const char *dictionary)
     char *word = malloc(LENGTH * sizeof(char)); /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
     node *w = malloc(sizeof(node));
     
-    /* pointer to dictionary size tracker */
-    int *size_trck = malloc(sizeof(int));
+     /* pointer to dictionary size tracker 
+    int *size_trck = malloc(sizeof(int)); */
 
     /* scan dictionary into hash table one word at a time */
     while (fscanf(dict_ptr, "%s", word) != EOF)
     {
+        dic_load = true;
         size();
         int index = 0;
         strcpy(w->word, word); 
         insert(&w);
         index++;
         node *w = malloc(sizeof(node)); /* TO CONFIRM: Is this right? Using same function iterably with the intent of creating a new block each time */
-        return true;
+        return dic_load = true;;
     }
+    dic_load = false;
     free(word);
     free(w);
 }
@@ -118,17 +127,14 @@ bool check(const char *word)
 otherwise returns the tracker val upon call */
 unsigned int size(void)
 {
-    if(*w != NULL)
+    int dic_load;
+    if(dic_load = true)
     {
-        *size_trck++;
-    }
-    else if (*size_trck > 0)
-    {
-        return *size_trck;
+        size_trck++;
     }
     else
     {
-        return 0;
+        return size_trck;
     }
 }
 
@@ -170,4 +176,5 @@ bool unload(void)
         printf("Successfully freed each node");
         return true;
     }
+    free(table);
 }
