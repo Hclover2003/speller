@@ -28,6 +28,15 @@ const unsigned int N = 48000; /* length of dictionary / 3 (rounded to nearest th
 
 // Hash table
 node *table[N];
+
+/* clear the table to make sure we start with all NULL elements */
+void table_clean()
+{
+    for (int i = 0; i < N; i++)
+    {
+        table[i] = NULL;
+    }
+}
     
 /* declare dictionary file pointer */
 FILE *dict_ptr;

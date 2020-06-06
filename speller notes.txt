@@ -1,1 +1,3 @@
-remember to free table -- actually, check speller to see if it gets freed there 
+debug notes: 
+1) insert function -- w->next = table(index) doesn't appear to change 
+the address from 0x0000000...hmmm...
