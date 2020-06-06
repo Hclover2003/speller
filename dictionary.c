@@ -138,41 +138,28 @@ bool unload(void)
         node *tmp = table[i];
         node *tmpnxt = table[i + 1];
         
-        if (tmp == NULL && tmpnxt == NULL)
+        while(tmp != NULL && tmpnxt != NULL)
         {
-            continue;
+            free(tmp);
+            tmp = tmpnxt;
+            tmpnxt = tmpnxt->next;
         }
         
-        else
+        if (tmp != NULL && tmpnxt == NULL)
         {
-            while(tmp != NULL && tmpnxt != NULL)
-            {
-                free(tmp);
-                tmp = tmpnxt;
-                tmpnxt = tmpnxt->next;
-            }
-            
-            if (tmp != NULL && tmpnxt == NULL)
-            {
-                free(tmp);
-            }
-            else
-            {
-                printf("Something went wrong when freeing the memory -- end of list");
-                return false;
-            }
+            free(tmp);
         }
     }
+    
     if (!*table)
     {
-        printf("Successfully freed each node");
+        printf("Successfully freed each node\n");
     }
     else
     {
         printf("Error freeing hash tables nodes");
         return false;
     }
-    free(table);
     fclose(dict_ptr);
     dic_load = false;
     return true;
