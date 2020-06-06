@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include "dictionary.h"
 
@@ -24,7 +25,7 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 5000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
+const unsigned int N = 48000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
 
 // Hash table
 node *table[N];
@@ -64,8 +65,6 @@ bool load(const char *dictionary)
         w = malloc(sizeof(node));
 
         strcpy(w->word, word); 
-        
-        if (w == NULL) return false;
         int index = hash(w->word); 
         w->next = table[index];
         table[index] = w; 
@@ -136,9 +135,17 @@ bool unload(void)
     for (int i = 0; i < N; i++)
     {
         node *tmp = table[i];
-        node *tmpnxt = table[i + 1];
+        node *tmpnxt = NULL;
+        if (tmp != NULL)
+        {
+            tmpnxt = tmp->next;
+        }
+        else
+        {
+            continue;
+        }
         
-        while(tmp != NULL && tmpnxt != NULL)
+        while(tmpnxt != NULL)
         {
             free(tmp);
             tmp = tmpnxt;
@@ -151,15 +158,6 @@ bool unload(void)
         }
     }
     
-    if (!*table)
-    {
-        printf("Successfully freed each node\n");
-    }
-    else
-    {
-        printf("Error freeing hash tables nodes");
-        return false;
-    }
     fclose(dict_ptr);
     dic_load = false;
     return true;
