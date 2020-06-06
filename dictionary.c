@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 #include "dictionary.h"
 
 /* dictionary size tracker variable */
@@ -27,6 +28,9 @@ const unsigned int N = 48000; /* length of dictionary / 3 (rounded to nearest th
 
 // Hash table
 node *table[N];
+    
+/* declare dictionary file pointer */
+FILE *dict_ptr;
 
 bool insert (node *w); /* declaration for supp function to insert word into hash table */
 unsigned int size(void); /* declaration for size counter when loading dictionary */
@@ -35,46 +39,46 @@ unsigned int size(void); /* declaration for size counter when loading dictionary
 /* moving one given as how this is Step (1) */
 bool load(const char *dictionary)
 {
-    FILE *dict_ptr = fopen(dictionary, "r");
+    dict_ptr = fopen(dictionary, "r");
     if (dict_ptr == NULL)
     {
-        printf("Could not open %s...\n", dict_ptr);
+        printf("Could not open selected dictionary");
         unload();
         return dic_load = false;
     }
 
 
-    /* allocate (1) memory for each new word (will use the same block) and 
-    (2) memory for each new node (will add a new node block for each word)  */
+    /* allocate memory for each new word (will use the same block) */ 
     /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
     char *word = malloc(LENGTH * sizeof(char)); /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
-    node *w = malloc(sizeof(node));
     
      /* pointer to dictionary size tracker 
     int *size_trck = malloc(sizeof(int)); */
 
+    node *w;
     /* scan dictionary into hash table one word at a time */
     while (fscanf(dict_ptr, "%s", word) != EOF)
     {
         dic_load = true;
         size();
-        int index = 0;
+        
+        /* allocate a new block of memory for each new node (will add a new node block for each word)  */
+        w = malloc(sizeof(node));
+
         strcpy(w->word, word); 
-        insert(&w);
-        index++;
-        node *w = malloc(sizeof(node)); /* TO CONFIRM: Is this right? Using same function iterably with the intent of creating a new block each time */
-        return dic_load = true;;
+        insert(w);
+        free(w);
     }
-    dic_load = false;
     free(word);
-    free(w);
+    dic_load = false;
+    return true;
 }
 
     bool insert (node *w)
     {
         if (w == NULL) return false;
 
-        int index = hash(w->word); /* TBU after implementing hash() */
+        int index = hash(w->word); 
         w->next = table[index];
         table[index] = w; 
         return true;
@@ -84,16 +88,13 @@ bool load(const char *dictionary)
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
-    int wlen = strlen(word);    
     unsigned long hash_value = 5381;
-    unsigned int x = *word;
-    x = tolower(x);
+    unsigned int x = tolower(*word);
 
-    while(*word != NULL)
+    while(*word != 0)
     {
         hash_value = hash_value * 33 + x;
-        x = *word++;
-        x = tolower(x);
+        x = tolower(*word++);
     }
     return hash_value % N;
 
@@ -127,10 +128,10 @@ bool check(const char *word)
 otherwise returns the tracker val upon call */
 unsigned int size(void)
 {
-    int dic_load;
-    if(dic_load = true)
+    if(dic_load == true)
     {
         size_trck++;
+        return size_trck;
     }
     else
     {
@@ -174,7 +175,13 @@ bool unload(void)
     if (!*table)
     {
         printf("Successfully freed each node");
-        return true;
+    }
+    else
+    {
+        printf("Error freeing hash tables nodes");
+        return false;
     }
     free(table);
+    fclose(dict_ptr);
+    return true;
 }
