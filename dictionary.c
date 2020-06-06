@@ -24,24 +24,14 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 48000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
+const unsigned int N = 5000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
 
 // Hash table
 node *table[N];
-
-/* clear the table to make sure we start with all NULL elements */
-void table_clean()
-{
-    for (int i = 0; i < N; i++)
-    {
-        table[i] = NULL;
-    }
-}
     
 /* declare dictionary file pointer */
 FILE *dict_ptr;
 
-bool insert (node *w); /* declaration for supp function to insert word into hash table */
 unsigned int size(void); /* declaration for size counter when loading dictionary */
 
 // Loads dictionary into memory, returning true if successful else false
@@ -49,10 +39,10 @@ unsigned int size(void); /* declaration for size counter when loading dictionary
 bool load(const char *dictionary)
 {
     dict_ptr = fopen(dictionary, "r");
+    dic_load = true;
     if (dict_ptr == NULL)
     {
         printf("Could not open selected dictionary");
-        unload();
         return dic_load = false;
     }
 
@@ -68,30 +58,22 @@ bool load(const char *dictionary)
     /* scan dictionary into hash table one word at a time */
     while (fscanf(dict_ptr, "%s", word) != EOF)
     {
-        dic_load = true;
         size();
         
         /* allocate a new block of memory for each new node (will add a new node block for each word)  */
         w = malloc(sizeof(node));
 
         strcpy(w->word, word); 
-        insert(w);
-        free(w);
-    }
-    free(word);
-    dic_load = false;
-    return true;
-}
-
-    bool insert (node *w)
-    {
+        
         if (w == NULL) return false;
-
         int index = hash(w->word); 
         w->next = table[index];
         table[index] = w; 
-        return true;
     }
+    free(word);
+    return true;
+}
+
 
 
 // Hashes word to a number
@@ -117,7 +99,7 @@ bool check(const char *word)
     int index = hash(word);
     node *tmp = table[index];
     
-    while(tmp != NULL && strncmp(tmp->word, word, LENGTH) != 0)
+    while(tmp != NULL && strcasecmp(tmp->word, word) != 0)
     {
         tmp = tmp->next;
     }
@@ -158,7 +140,7 @@ bool unload(void)
         
         if (tmp == NULL && tmpnxt == NULL)
         {
-            return false;
+            continue;
         }
         
         else
@@ -192,5 +174,6 @@ bool unload(void)
     }
     free(table);
     fclose(dict_ptr);
+    dic_load = false;
     return true;
 }
