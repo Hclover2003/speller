@@ -25,15 +25,13 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 48000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
+const unsigned int N = 38000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
 
 // Hash table
 node *table[N];
     
 /* declare dictionary file pointer */
 FILE *dict_ptr;
-
-unsigned int size(void); /* declaration for size counter when loading dictionary */
 
 // Loads dictionary into memory, returning true if successful else false
 /* moving one given as how this is Step (1) */
@@ -51,15 +49,13 @@ bool load(const char *dictionary)
     /* allocate memory for each new word (will use the same block) */ 
     /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
     char *word = malloc(LENGTH * sizeof(char)); /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
-    
-     /* pointer to dictionary size tracker 
-    int *size_trck = malloc(sizeof(int)); */
 
     node *w;
     /* scan dictionary into hash table one word at a time */
     while (fscanf(dict_ptr, "%s", word) != EOF)
     {
-        size();
+        /* increment dictionary size tracker */
+        size_trck++;
         
         /* allocate a new block of memory for each new node (will add a new node block for each word)  */
         w = malloc(sizeof(node));
@@ -79,12 +75,12 @@ bool load(const char *dictionary)
 unsigned int hash(const char *word)
 {
     unsigned long hash_value = 5381;
-    unsigned int x = tolower(*word);
+    unsigned int x = *word;
 
     while(*word != 0)
     {
         hash_value = hash_value * 33 + x;
-        x = tolower(*word++);
+        x = *word++;
     }
     return hash_value % N;
 
@@ -97,7 +93,7 @@ bool check(const char *word)
 {
     int index = hash(word);
     node *tmp = table[index];
-    
+      
     while(tmp != NULL && strcasecmp(tmp->word, word) != 0)
     {
         tmp = tmp->next;
@@ -118,15 +114,7 @@ bool check(const char *word)
 otherwise returns the tracker val upon call */
 unsigned int size(void)
 {
-    if(dic_load == true)
-    {
-        size_trck++;
-        return size_trck;
-    }
-    else
-    {
-        return size_trck;
-    }
+    return size_trck;
 }
 
 // Unloads dictionary from memory, returning true if successful else false
@@ -151,12 +139,8 @@ bool unload(void)
             tmp = tmpnxt;
             tmpnxt = tmpnxt->next;
         }
-        
-        if (tmp != NULL && tmpnxt == NULL)
-        {
             free(tmp);
         }
-    }
     
     fclose(dict_ptr);
     dic_load = false;
