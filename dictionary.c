@@ -10,7 +10,7 @@
 #include "dictionary.h"
 
 /* dictionary size tracker variable */
-int size_trck = 0;
+long size_trck = 0;
 
 /* global dictionary load boolean */
 bool dic_load = false;
@@ -61,11 +61,12 @@ bool load(const char *dictionary)
         w = malloc(sizeof(node));
 
         strcpy(w->word, word); 
-        int index = hash(w->word); 
+        unsigned long index = hash(w->word); 
         w->next = table[index];
         table[index] = w; 
     }
     free(word);
+    fclose(dict_ptr);
     return true;
 }
 
