@@ -12,9 +12,6 @@
 /* dictionary size tracker variable */
 long size_trck = 0;
 
-/* global dictionary load boolean */
-bool dic_load = false;
-
 
 // Represents a node in a hash table
 typedef struct node
@@ -38,11 +35,10 @@ FILE *dict_ptr;
 bool load(const char *dictionary)
 {
     dict_ptr = fopen(dictionary, "r");
-    dic_load = true;
     if (dict_ptr == NULL)
     {
         printf("Could not open selected dictionary");
-        return dic_load = false;
+        return false;
     }
 
 
@@ -140,10 +136,6 @@ bool unload(void)
             tmp = tmpnxt;
             tmpnxt = tmpnxt->next;
         }
-            free(tmp);
-        }
-    
-    fclose(dict_ptr);
-    dic_load = false;
+     }
     return true;
 }
