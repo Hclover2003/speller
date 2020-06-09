@@ -7,6 +7,9 @@
 #include <string.h>
 #include <strings.h>
 #include <ctype.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
 #include "dictionary.h"
 
 /* dictionary size tracker variable */
@@ -27,28 +30,37 @@ const unsigned int N = 38000; /* length of dictionary / 3 (rounded to nearest th
 // Hash table
 node *table[N];
     
-/* declare dictionary file pointer */
-FILE *dict_ptr;
 
 // Loads dictionary into memory, returning true if successful else false
 /* moving one given as how this is Step (1) */
 bool load(const char *dictionary)
 {
-    dict_ptr = fopen(dictionary, "r");
+    /* declare dictionary file pointer */
+    FILE *dict_ptr = fopen(dictionary, "rb");
     if (dict_ptr == NULL)
     {
         printf("Could not open selected dictionary");
         return false;
     }
 
+    
+    rewind(dict_ptr);
+    fseek(dict_ptr, 0, SEEK_END);
+    long filesize = ftell(dict_ptr);
+    rewind(dict_ptr);
+
+    char **dictionary_live;
+    dictionary_live = malloc(filesize + 1);   
+
+    fscanf(dict_ptr, "%s", *dictionary_live);
 
     /* allocate memory for each new word (will use the same block) */ 
     /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
-    char *word = malloc(LENGTH * sizeof(char)); /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
+    char word[LENGTH] = {}; 
 
     node *w;
     /* scan dictionary into hash table one word at a time */
-    while (fscanf(dict_ptr, "%s", word) != EOF)
+    while ((word == *dictionary_live++))
     {
         /* increment dictionary size tracker */
         size_trck++;
@@ -61,12 +73,9 @@ bool load(const char *dictionary)
         w->next = table[index];
         table[index] = w; 
     }
-    free(word);
     fclose(dict_ptr);
     return true;
 }
-
-
 
 // Hashes word to a number
 unsigned int hash(const char *word)
