@@ -39,34 +39,35 @@ bool load(const char *dictionary)
         printf("Could not open selected dictionary");
         return false;
     }
-
     
-    /* rewind(dict_ptr);
+    /* figure out file size */
     fseek(dict_ptr, 0, SEEK_END);
     long filesize = ftell(dict_ptr);
     rewind(dict_ptr);
+    long totalsize = filesize + LENGTH; 
 
-    char **dictionary_live;
-    dictionary_live = malloc(filesize + 1);   
-
-    fscanf(dict_ptr, "%s", *dictionary_live); */
-
-    /* allocate memory for each new word (will use the same block) */ 
-    /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
+    /* array to store the dictionary locally, thereby making it faster to iterate thru when setting up the hash table  */
+    char dictionary_live[totalsize];
     
     
+    int h = 0; 
+    while (fgets(&dictionary_live[h], LENGTH, dict_ptr))
+    {
+        size_trck++;
+        h++;
+    }
+    /* terminate the array */
+    dictionary_live[filesize] = 0; 
 
-    
     char word[LENGTH] = {}; 
     node *w;
 
-    /* scan dictionary into hash table one word at a time */
-    
-    while (!feof(dict_ptr))
+    /* now we can iterate thru the dictionary without having to use fscanf or fgets each time, which slows down the runtime  */
+    int i = 0; 
+    while (dictionary_live[i++] != 0) && (strcmp(dictionary_live[i++], "\n") != 0)
     {
-        size_trck++;
         w = malloc(sizeof(node));
-        fgets(w->word, LENGTH, dict_ptr);
+        strcpy(w->word, dictionary_live[i++]);
         int index = hash(w->word); 
         w->next = table[index];
         table[index] = w; 
