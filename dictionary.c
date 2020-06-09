@@ -7,9 +7,6 @@
 #include <string.h>
 #include <strings.h>
 #include <ctype.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
 #include "dictionary.h"
 
 /* dictionary size tracker variable */
@@ -44,7 +41,7 @@ bool load(const char *dictionary)
     }
 
     
-    rewind(dict_ptr);
+    /* rewind(dict_ptr);
     fseek(dict_ptr, 0, SEEK_END);
     long filesize = ftell(dict_ptr);
     rewind(dict_ptr);
@@ -52,28 +49,28 @@ bool load(const char *dictionary)
     char **dictionary_live;
     dictionary_live = malloc(filesize + 1);   
 
-    fscanf(dict_ptr, "%s", *dictionary_live);
+    fscanf(dict_ptr, "%s", *dictionary_live); */
 
     /* allocate memory for each new word (will use the same block) */ 
     /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
+    
+    
+
+    
     char word[LENGTH] = {}; 
-
     node *w;
-    /* scan dictionary into hash table one word at a time */
-    while ((word == *dictionary_live++))
-    {
-        /* increment dictionary size tracker */
-        size_trck++;
-        
-        /* allocate a new block of memory for each new node (will add a new node block for each word)  */
-        w = malloc(sizeof(node));
 
-        strcpy(w->word, word); 
-        unsigned long index = hash(w->word); 
+    /* scan dictionary into hash table one word at a time */
+    
+    while (!feof(dict_ptr))
+    {
+        size_trck++;
+        w = malloc(sizeof(node));
+        fgets(w->word, LENGTH, dict_ptr);
+        int index = hash(w->word); 
         w->next = table[index];
         table[index] = w; 
     }
-    fclose(dict_ptr);
     return true;
 }
 
