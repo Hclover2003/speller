@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": ["dictionaries/small", 
+            "args": ["dictionaries/large", 
                         "texts/cat.txt",
                         ],
             "stopAtEntry": false,

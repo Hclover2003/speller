@@ -32,7 +32,7 @@ node *table[N];
 bool load(const char *dictionary)
 {
     /* declare dictionary file pointer */
-    FILE *dict_ptr = fopen(dictionary, "rb");
+    FILE *dict_ptr = fopen(dictionary, "r");
     if (dict_ptr == NULL)
     {
         printf("Could not open selected dictionary");
@@ -50,11 +50,10 @@ bool load(const char *dictionary)
     dictionary_live = (char*)calloc(filesize, LENGTH * sizeof(char));   
     line = calloc(1, LENGTH * sizeof(char));    */
     
-    char dictionary_live[30][LENGTH] = {{0}};
-    char line[LENGTH];
+    char dictionary_live[200000][LENGTH] = {{0}};
 
     int i = 0;
-    while(fscanf(dict_ptr, "%s", dictionary_live[i]))
+    while(fscanf(dict_ptr, "%s", dictionary_live[i]) != EOF)
     {
         size_trck++;
         /* strcpy(dictionary_live[i], line); */
@@ -68,12 +67,13 @@ bool load(const char *dictionary)
     {
         w = malloc(sizeof(node));
         strcpy(w->word, dictionary_live[i]);
-        int index = hash(w->word); 
+        unsigned long index = hash(w->word); 
         w->next = table[index];
         table[index] = w;
         i++; 
     }
     i = 0;
+    fclose(dict_ptr);
     return true;
 }
 
