@@ -39,7 +39,8 @@ while(test->word[i] != 0)
 }
 printf("\n");
 
-char text[LENGTH] = "Cat";
+char text[LENGTH] = "CaT";
+unsigned int texts = tolower(text[0]);
 int answer = strcasecmp(test->word, text);
 printf("%i\n", answer); 
 

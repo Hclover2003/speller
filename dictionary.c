@@ -22,7 +22,7 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned long N = 38000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
+const unsigned int N = 241921; /* length of dictionary / 3 (rounded to nearest thounsand)  */
 
 // Hash table
 node *table[N];
@@ -31,7 +31,6 @@ node *table[N];
 FILE *dict_ptr;
 
 // Loads dictionary into memory, returning true if successful else false
-/* moving one given as how this is Step (1) */
 bool load(const char *dictionary)
 {
     dict_ptr = fopen(dictionary, "r");
@@ -41,25 +40,23 @@ bool load(const char *dictionary)
         return false;
     }
 
-
-    /* allocate memory for each new word (will use the same block) */ 
-    /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
-    char word[LENGTH]; /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
-
     node *w;
+    w = malloc(sizeof(node));
+    /* w = calloc(1, sizeof(node)); */
     /* scan dictionary into hash table one word at a time */
-    while (fscanf(dict_ptr, "%s", word) != EOF)
+    while (fscanf(dict_ptr, "%s", w->word) != EOF)
     {
         /* increment dictionary size tracker */
         size_trck++;
         
         /* allocate a new block of memory for each new node (will add a new node block for each word)  */
-        w = malloc(sizeof(node));
 
-        strcpy(w->word, word); 
-        unsigned long index = hash(w->word); 
+        /* strcpy(w->word, word);  */
+        unsigned int index = hash(w->word); 
         w->next = table[index];
         table[index] = w; 
+        w = malloc(sizeof(node));
+    /*     w = calloc(1, sizeof(node)); */
     }
     fclose(dict_ptr);
     return true;
@@ -71,12 +68,11 @@ bool load(const char *dictionary)
 unsigned int hash(const char *word)
 {
     unsigned long hash_value = 5381;
-    unsigned long x = tolower(*word);
+    unsigned int x;
 
-    while(*word != 0)
+    while((x = tolower(*word++)))
     {
         hash_value = hash_value * 33 + x;
-        x = tolower(*word++);
     }
     return hash_value % N;
 
@@ -87,7 +83,7 @@ unsigned int hash(const char *word)
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    unsigned long index = hash(word);
+    unsigned int index = hash(word);
     node *tmp = table[index];
       
     while(tmp != NULL && strcasecmp(tmp->word, word) != 0)
