@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <strings.h>
+#include <ctype.h>
 #include "dictionary.h"
 
 /* dictionary size tracker variable */
@@ -45,12 +46,10 @@ bool load(const char *dictionary)
     long filesize = ftell(dict_ptr);
     rewind(dict_ptr);
 
-    /* char *dictionary_live;
-    char *line;
-    dictionary_live = (char*)calloc(filesize, LENGTH * sizeof(char));   
-    line = calloc(1, LENGTH * sizeof(char));    */
+    char (*dictionary_live)[LENGTH];
+    dictionary_live = calloc(filesize, sizeof(*dictionary_live) + 1);   
     
-    char dictionary_live[200000][LENGTH] = {{0}};
+    /* char dictionary_live[100][LENGTH] = {{0}}; */
 
     int i = 0;
     while(fscanf(dict_ptr, "%s", dictionary_live[i]) != EOF)
