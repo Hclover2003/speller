@@ -22,11 +22,11 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 241921; /* length of dictionary / 3 (rounded to nearest thounsand)  */
+const unsigned int N = 149021; /* length of dictionary / 3 (rounded to nearest thounsand)  */
 
 // Hash table
 node *table[N];
-    
+
 /* declare dictionary file pointer */
 FILE *dict_ptr;
 
@@ -42,22 +42,15 @@ bool load(const char *dictionary)
 
     node *w;
     w = malloc(sizeof(node));
-    /* w = calloc(1, sizeof(node)); */
-    /* scan dictionary into hash table one word at a time */
     while (fscanf(dict_ptr, "%s", w->word) != EOF)
     {
-        /* increment dictionary size tracker */
         size_trck++;
-        
-        /* allocate a new block of memory for each new node (will add a new node block for each word)  */
-
-        /* strcpy(w->word, word);  */
-        unsigned int index = hash(w->word); 
+        unsigned int index = hash(w->word);
         w->next = table[index];
-        table[index] = w; 
+        table[index] = w;
         w = malloc(sizeof(node));
-    /*     w = calloc(1, sizeof(node)); */
     }
+    free(w);
     fclose(dict_ptr);
     return true;
 }
@@ -75,8 +68,6 @@ unsigned int hash(const char *word)
         hash_value = hash_value * 33 + x;
     }
     return hash_value % N;
-
-    /* return 0; not sure how to have hash() return 0 yet */
 }
 
 
@@ -85,7 +76,7 @@ bool check(const char *word)
 {
     unsigned int index = hash(word);
     node *tmp = table[index];
-      
+
     while(tmp != NULL && strcasecmp(tmp->word, word) != 0)
     {
         tmp = tmp->next;
@@ -96,14 +87,12 @@ bool check(const char *word)
     }
     else
     {
-        return false; /* clean this up once finished; figure out the shortest form acceptable */
+        return false;
     }
 }
 
 
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
-/* increments size tracker by one if the dictionary word pointer (*w) is not null and therefore still iterating 
-otherwise returns the tracker val upon call */
 unsigned int size(void)
 {
     return size_trck;
@@ -124,13 +113,14 @@ bool unload(void)
         {
             continue;
         }
-        
+
         while(tmpnxt != NULL)
         {
             free(tmp);
             tmp = tmpnxt;
             tmpnxt = tmpnxt->next;
         }
-        }
+        free(tmp);
+    }
     return true;
 }
