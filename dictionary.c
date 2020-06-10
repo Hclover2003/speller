@@ -12,9 +12,6 @@
 /* dictionary size tracker variable */
 long size_trck = 0;
 
-/* global dictionary load boolean */
-bool dic_load = false;
-
 
 // Represents a node in a hash table
 typedef struct node
@@ -25,7 +22,7 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 38000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
+const unsigned long N = 38000; /* length of dictionary / 3 (rounded to nearest thounsand)  */
 
 // Hash table
 node *table[N];
@@ -38,17 +35,16 @@ FILE *dict_ptr;
 bool load(const char *dictionary)
 {
     dict_ptr = fopen(dictionary, "r");
-    dic_load = true;
     if (dict_ptr == NULL)
     {
         printf("Could not open selected dictionary");
-        return dic_load = false;
+        return false;
     }
 
 
     /* allocate memory for each new word (will use the same block) */ 
     /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
-    char *word = malloc(LENGTH * sizeof(char)); /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
+    char word[LENGTH]; /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
 
     node *w;
     /* scan dictionary into hash table one word at a time */
@@ -65,7 +61,6 @@ bool load(const char *dictionary)
         w->next = table[index];
         table[index] = w; 
     }
-    free(word);
     fclose(dict_ptr);
     return true;
 }
@@ -76,12 +71,12 @@ bool load(const char *dictionary)
 unsigned int hash(const char *word)
 {
     unsigned long hash_value = 5381;
-    unsigned int x = tolower(*word);
+    unsigned long x = tolower(*word);
 
     while(*word != 0)
     {
         hash_value = hash_value * 33 + x;
-        x = *word++;
+        x = tolower(*word++);
     }
     return hash_value % N;
 
@@ -92,7 +87,7 @@ unsigned int hash(const char *word)
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    int index = hash(word);
+    unsigned long index = hash(word);
     node *tmp = table[index];
       
     while(tmp != NULL && strcasecmp(tmp->word, word) != 0)
@@ -140,10 +135,6 @@ bool unload(void)
             tmp = tmpnxt;
             tmpnxt = tmpnxt->next;
         }
-            free(tmp);
         }
-    
-    fclose(dict_ptr);
-    dic_load = false;
     return true;
 }
