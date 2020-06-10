@@ -44,34 +44,43 @@ bool load(const char *dictionary)
     fseek(dict_ptr, 0, SEEK_END);
     long filesize = ftell(dict_ptr);
     rewind(dict_ptr);
-    long totalsize = filesize + LENGTH; 
+    long totalsize = filesize * LENGTH; 
 
     /* array to store the dictionary locally, thereby making it faster to iterate thru when setting up the hash table  */
-    char dictionary_live[totalsize];
+    char *dictionary_live = calloc(totalsize, sizeof(char));
     
-    
-    int h = 0; 
-    while (fgets(&dictionary_live[h], LENGTH, dict_ptr))
-    {
-        size_trck++;
-        h++;
-    }
-    /* terminate the array */
-    dictionary_live[filesize] = 0; 
+    fread(dictionary_live, sizeof(char), totalsize, dict_ptr);
 
     char word[LENGTH] = {}; 
     node *w;
 
     /* now we can iterate thru the dictionary without having to use fscanf or fgets each time, which slows down the runtime  */
-    int i = 0; 
-    while (dictionary_live[i++] != 0) && (strcmp(dictionary_live[i++], "\n") != 0)
+    w = calloc(1, sizeof(node));
+    int dc = 0; 
+    int lc = 0;
+    printf("%c\n", dictionary_live[dc]);
+    while (dictionary_live[dc] != 0)
     {
-        w = malloc(sizeof(node));
-        strcpy(w->word, dictionary_live[i++]);
-        int index = hash(w->word); 
-        w->next = table[index];
-        table[index] = w; 
+        if (dictionary_live[dc] == '\n')
+        {
+            size_trck++;
+            int index = hash(w->word); 
+            w->next = table[index];
+            table[index] = w; 
+            w = calloc(1, sizeof(node));
+            dc++;
+            lc = 0;
+            continue;
+        }
+        else
+        {
+            w->word[lc] = dictionary[dc];
+            lc++;
+            dc++;
+        }   
     }
+    free(dictionary_live);
+    fclose(dict_ptr);
     return true;
 }
 
