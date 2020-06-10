@@ -54,11 +54,10 @@ bool load(const char *dictionary)
     char line[LENGTH];
 
     int i = 0;
-    while(fscanf(dict_ptr, "%s", ))
+    while(fscanf(dict_ptr, "%s", dictionary_live[i]))
     {
         size_trck++;
-        fgets(line, LENGTH, dict_ptr);
-        strcpy(dictionary_live[i], line);
+        /* strcpy(dictionary_live[i], line); */
         i++;
     }
 
