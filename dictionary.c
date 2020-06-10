@@ -12,6 +12,9 @@
 /* dictionary size tracker variable */
 long size_trck = 0;
 
+/* global dictionary load boolean */
+bool dic_load = false;
+
 
 // Represents a node in a hash table
 typedef struct node
@@ -27,60 +30,53 @@ const unsigned int N = 38000; /* length of dictionary / 3 (rounded to nearest th
 // Hash table
 node *table[N];
     
+/* declare dictionary file pointer */
+FILE *dict_ptr;
 
 // Loads dictionary into memory, returning true if successful else false
 /* moving one given as how this is Step (1) */
 bool load(const char *dictionary)
 {
-    /* declare dictionary file pointer */
-    FILE *dict_ptr = fopen(dictionary, "r");
+    dict_ptr = fopen(dictionary, "r");
+    dic_load = true;
     if (dict_ptr == NULL)
     {
         printf("Could not open selected dictionary");
-        return false;
+        return dic_load = false;
     }
 
-    
-    rewind(dict_ptr);
-    fseek(dict_ptr, 0, SEEK_END);
-    long filesize = ftell(dict_ptr);
-    rewind(dict_ptr);
 
-    char (*dictionary_live)[LENGTH];
-    dictionary_live = calloc(filesize, sizeof(*dictionary_live) + 1);   
-    
-    /* char dictionary_live[100][LENGTH] = {{0}}; */
+    /* allocate memory for each new word (will use the same block) */ 
+    /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
+    char *word = malloc(LENGTH * sizeof(char)); /* TO CONFIRM: can i get away with the one malloc and the loop replacing the word each time?  */
 
-    int i = 0;
-    while(fscanf(dict_ptr, "%s", dictionary_live[i]) != EOF)
-    {
-        size_trck++;
-        /* strcpy(dictionary_live[i], line); */
-        i++;
-    }
-
-    /* scan dictionary into hash table one word at a time */
     node *w;
-    i = 0;
-    while (dictionary_live[i][0] != 0)
+    /* scan dictionary into hash table one word at a time */
+    while (fscanf(dict_ptr, "%s", word) != EOF)
     {
+        /* increment dictionary size tracker */
+        size_trck++;
+        
+        /* allocate a new block of memory for each new node (will add a new node block for each word)  */
         w = malloc(sizeof(node));
-        strcpy(w->word, dictionary_live[i]);
+
+        strcpy(w->word, word); 
         unsigned long index = hash(w->word); 
         w->next = table[index];
-        table[index] = w;
-        i++; 
+        table[index] = w; 
     }
-    i = 0;
+    free(word);
     fclose(dict_ptr);
     return true;
 }
+
+
 
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
     unsigned long hash_value = 5381;
-    unsigned int x = *word;
+    unsigned int x = tolower(*word);
 
     while(*word != 0)
     {
@@ -144,6 +140,10 @@ bool unload(void)
             tmp = tmpnxt;
             tmpnxt = tmpnxt->next;
         }
-     }
+            free(tmp);
+        }
+    
+    fclose(dict_ptr);
+    dic_load = false;
     return true;
 }
