@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <strings.h>
-#include <ctype.h>
 #include "dictionary.h"
 
 /* dictionary size tracker variable */
@@ -39,48 +38,50 @@ bool load(const char *dictionary)
         printf("Could not open selected dictionary");
         return false;
     }
+
     
-    /* figure out file size */
+    rewind(dict_ptr);
     fseek(dict_ptr, 0, SEEK_END);
     long filesize = ftell(dict_ptr);
     rewind(dict_ptr);
-    long totalsize = filesize * LENGTH; 
 
-    /* array to store the dictionary locally, thereby making it faster to iterate thru when setting up the hash table  */
-    char *dictionary_live = calloc(totalsize, sizeof(char));
+    /* char *dictionary_live;
+    char *line;
+    dictionary_live = (char*)calloc(filesize, LENGTH * sizeof(char));   
+    line = calloc(1, LENGTH * sizeof(char));    */
     
-    fread(dictionary_live, sizeof(char), totalsize, dict_ptr);
+    char dictionary_live[30][LENGTH] = {{0}};
+    char line[LENGTH];
 
+    int i = 0;
+    while(!feof(dict_ptr))
+    {
+        size_trck++;
+        fgets(line, LENGTH, dict_ptr);
+        strcpy(dictionary_live[i], line);
+        i++;
+    }
+
+    /* allocate memory for each new word (will use the same block) */ 
+    /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
+    
+    
     char word[LENGTH] = {}; 
     node *w;
 
-    /* now we can iterate thru the dictionary without having to use fscanf or fgets each time, which slows down the runtime  */
-    w = calloc(1, sizeof(node));
-    int dc = 0; 
-    int lc = 0;
-    printf("%c\n", dictionary_live[dc]);
-    while (dictionary_live[dc] != 0)
+    /* scan dictionary into hash table one word at a time */
+    
+    i = 0;
+    while (dictionary_live[i][0] != 0)
     {
-        if (dictionary_live[dc] == '\n')
-        {
-            size_trck++;
-            int index = hash(w->word); 
-            w->next = table[index];
-            table[index] = w; 
-            w = calloc(1, sizeof(node));
-            dc++;
-            lc = 0;
-            continue;
-        }
-        else
-        {
-            w->word[lc] = dictionary[dc];
-            lc++;
-            dc++;
-        }   
+        w = malloc(sizeof(node));
+        strcpy(w->word, dictionary_live[i]);
+        int index = hash(w->word); 
+        w->next = table[index];
+        table[index] = w;
+        i++; 
     }
-    free(dictionary_live);
-    fclose(dict_ptr);
+    i = 0;
     return true;
 }
 
