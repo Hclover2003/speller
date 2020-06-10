@@ -54,7 +54,7 @@ bool load(const char *dictionary)
     char line[LENGTH];
 
     int i = 0;
-    while(!feof(dict_ptr))
+    while(fscanf(dict_ptr, "%s", ))
     {
         size_trck++;
         fgets(line, LENGTH, dict_ptr);
@@ -62,15 +62,8 @@ bool load(const char *dictionary)
         i++;
     }
 
-    /* allocate memory for each new word (will use the same block) */ 
-    /* TO CONFIRM: Can i get away with not using the word block and scanning directly into the node */
-    
-    
-    char word[LENGTH] = {}; 
-    node *w;
-
     /* scan dictionary into hash table one word at a time */
-    
+    node *w;
     i = 0;
     while (dictionary_live[i][0] != 0)
     {

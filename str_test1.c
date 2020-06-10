@@ -22,10 +22,26 @@ node;
 int main(void)
 {
 node *test = calloc(1, sizeof(node));
-strcpy(test->word[0], "c");
-strcpy(test->word[1], "a");
-strcpy(test->word[2], "t");
 
-printf("%c\n", test->word[1]);
+char line[50][50] = {{0}};
+line[0][0] = 'c';
+line[0][1] = 'a';
+line[0][2] = 't';
+line[0][3] = '\n';
+
+strcpy(test->word, line[0]);
+
+int i = 0;
+while(test->word[i] != 0)
+{
+    printf("%c", test->word[i]);
+    i++;
 }
-/* THIS IS CAUSING THE SEG FAULT IN DICTIONARY.C / SPELLER */
+printf("\n");
+
+char text[LENGTH] = "Cat";
+int answer = strcasecmp(test->word, text);
+printf("%i\n", answer); 
+
+
+}
